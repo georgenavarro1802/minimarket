@@ -10,14 +10,17 @@
 
             $("#id_tipoproducto").change(function(){
                 var tipoid = $(this).val();
-                $.post("/productos", {"action":"actualizacodigoprod", "tipoid":tipoid}, function(data){
-                    if (data.result=='ok'){
-                        $("#id_codigo").val(data.nuevocodigo);
-                    }else{
-                        alert("Error calculating new product code");
-                    }
-                }, 'json');
-                return false;
+                if (tipoid){
+                    $.post("/productos", {"action":"actualizacodigoprod", "tipoid":tipoid}, function(data){
+                        if (data.result=='ok'){
+                            $("#id_codigo").val(data.nuevocodigo);
+                        }else{
+                            alert("Error calculating new product code");
+                        }
+                    }, 'json');
+                }else{
+                    $("#id_codigo").val('');
+                }
             });
         });
 

@@ -95,7 +95,7 @@ def view(request):
             try:
                 tipoprod = TipoProducto.objects.get(pk=request.POST['tipoid'])
                 if tipoprod.producto_set.exists():
-                    nuevocodigo = tipoprod.producto_set.latest('id').codigo + 1
+                    nuevocodigo = int(tipoprod.producto_set.latest('id').codigo) + 1
                 else:
                     nuevocodigo = tipoprod.inicial + 1
                 return ok_json(data={"nuevocodigo": str(nuevocodigo)})
