@@ -1,0 +1,10 @@
+{% extends "deletebs.html" %}
+{% block titulo %}{{ title }}{% endblock %}
+{% block formback %}/clientes{% endblock %}
+{% block formaction %}/clientes{% endblock %}
+{% block formdestination %}/clientes{% endblock %}
+{% block formactionvalue %}delete{% endblock %}
+{% block formobjectid %}{{ cliente.id }}{% endblock %}
+{% block formobjectname %}from the customers list {% endblock %}
+{% block formobjectrepr %}{{ cliente }}{% endblock %}
+

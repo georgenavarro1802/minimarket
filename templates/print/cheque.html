@@ -1,0 +1,12 @@
+{% load humanize %}{
+    "id": "{{ id }}",
+    "documento": "CHEQUE {{ dato.numero }} - {{ dato.cuentabanco.banco.nombre }}",
+    "size": [433,215],
+    "margins": [19,45,382,99],
+    "impresion": [
+        [45,25,"{{ dato.beneficiario }}"],
+        [45,42,"{{ dato.en_letras }}"],
+        [7,73,"Guayaquil, {{ dato.fecha|date:"d-m-Y" }}"],
+        [294,10,"***** {{ dato.valor|floatformat:2|intcomma }}"]
+    ]
+}

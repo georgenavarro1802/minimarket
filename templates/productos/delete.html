@@ -1,0 +1,9 @@
+{% extends "deletebs.html" %}
+{% block titulo %}{{ title }}{% endblock %}
+{% block formback %}/productos{% endblock %}
+{% block formaction %}/productos{% endblock %}
+{% block formdestination %}/productos{% endblock %}
+{% block formactionvalue %}delete{% endblock %}
+{% block formobjectid %}{{ producto.id }}{% endblock %}
+{% block formobjectname %}Product: {% endblock %}
+{% block formobjectrepr %}{{ producto }}{% endblock %}

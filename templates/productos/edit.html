@@ -1,0 +1,22 @@
+{% extends "formbs.html" %}
+{% block extraheading %}
+    <script>
+
+        $(function () {
+            $("#id_codigo, #id_descripcion, #id_unidadmedida, #id_tipoproducto, #id_alias, #id_pvp").addClass("validate[required]");
+            $("#id_codigo, #id_pvp").addClass("input-small");
+            $("#id_codigobarra, #id_unidadmedida").addClass("input-medium");
+            $("#id_tipoproducto, #id_alias").addClass("input-xlarge");
+        });
+
+    </script>
+{% endblock %}
+{% block titulo %}{{ title }}{% endblock %}
+{% block formwidth %}form-m{% endblock %}
+{% block formaction %}/productos{% endblock %}
+{% block formdestination %}/productos{% endblock %}
+{% block formback %}/productos{% endblock %}
+{% block formextra %}
+    <input type='hidden' name='action' value='edit'/>
+    <input type='hidden' name='id' value='{{ producto.id }}'/>
+{% endblock %}

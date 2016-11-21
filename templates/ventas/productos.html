@@ -1,0 +1,163 @@
+{% extends "basebs.html" %}
+{% block heading %}
+    <script>
+
+        $(function() {
+
+            items = {};
+            items.productos = [];
+            sumTotal = 0;
+
+            //Segun tipo de producto - encuentra productos de esa categoria
+            $(".btntipoprod").click(function(){
+                $("#areaproductos").empty();
+                var tid = $(this).attr('tid');
+                $(".btntipoprod").removeClass("btn-success");
+                $("#inputbuscaproducto").val("");
+                $(this).addClass("btn-success");
+                $.ajax({
+                    type: "GET",
+                    url: "/ventas",
+                    dataType: "html",
+                    data: {"action":"buscaproductos", "tipoid": tid },
+                    success: function(data) {
+                        $("#logo").hide();
+                        $("#listaproducto").show();
+                        $("#areaproductos").html(data);
+                    },
+                    error: function() {
+                        smoke.alert("Error getting data");
+                    }
+                });
+            });
+
+            //Buscador de productos
+            productos = {
+                {% for p in lista_productos %}
+                    "{{ p.id }}": {"id":"{{ p.id }}", "codigo": "{{ p.codigo }}", "codigobarra": "{{ p.codigobarra }}", "descripcion": "{{ p.descripcion }}", "nombre_corto": "{{ p.nombre_corto }}"}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            };
+
+            buscar_producto = function(query, process) {
+                listing = [];
+                query = query.toUpperCase();
+                for (var i in productos) {
+                    var producto = productos[i];
+                    if (producto.codigo.indexOf(query) != -1 || producto.codigobarra.indexOf(query) != -1 || producto.descripcion.indexOf(query) != -1) {
+                        listing.push(producto.nombre_corto);
+                    }
+                }
+                process(listing);
+            };
+
+            updater_producto = function(item) {
+                for (var i in productos) {
+                    var producto = productos[i];
+                    if (item==producto.nombre_corto) {
+                        $(this.$element).attr("myval",producto.id);
+                        $(this.$element).attr("codigo",producto.codigo);
+
+                        return producto.nombre_corto;
+                    }
+                }
+                return "";
+            };
+
+            $('#inputbuscaproducto').typeahead({source: buscar_producto, updater: updater_producto}).blur(function(){
+                var pid = $(this).attr("myval");
+                $.get("/ventas", {"action":"buscaproducto", "pid": pid }, function(data){
+                    $("#logo").hide();
+                    $("#listaproducto").show();
+                    $("#areaproductos").html(data);
+                }, "html");
+            }).change(function(){
+                var pid = $(this).attr("myval");
+                $.get("/ventas", {"action":"buscaproducto", "pid": pid }, function(data){
+                    $("#logo").hide();
+                    $("#listaproducto").show();
+                    $("#areaproductos").html(data);
+                }, "html");
+            });
+
+        });
+
+    </script>
+{% endblock %}
+{% block canvas %}
+    <div class='row-fluid'>
+        <div class='span11'>
+            <h4>{{ title }}</h4>
+            <h6>Fecha: {{ hoy|date:'d-m-Y' }}</h6>
+        </div>
+        <div class='span1 atright'>
+            <a href="/" class='btn'><i class="icon-arrow-left"></i> Back</a>
+        </div>
+    </div>
+
+    <br/>
+    <!-- Tipos de Productos y Buscador de Producto -->
+    <div class="row-fluid well">
+        <div class='span8'>
+            <div id="listatipoprod">
+                <ul>
+                    {% for tipo in tipos_productos %}
+                        <li><a href="#" tid='{{ tipo.id }}' class="btntipoprod btn"><b>{{ tipo.nombre }}</b></a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="span4">
+            <label for="inputbuscaproducto">
+                <input class="input-block-level search-query" id="inputbuscaproducto" value="" placeholder="Buscar Producto" style="text-transform: uppercase"/>
+            </label>
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span12" style="text-align: center" id='logo'>
+            <img class="imglogo" src="/static/img/minimarket_logo.jpg">
+        </div>
+    </div>
+
+    {# AREA PARA MOSTRAR LOS PRODUCTOS DEL TIPO DE PRODUCTO SELECCIONADO   #}
+    <div class="row-fluid">
+        <!-- Para el area de productos del tipo seleccionado -->
+        <div class="span8" id='areaproductos'></div>
+        <!-- Para el area de listing venta de productos -->
+        <div class="span4" id='listaproducto' style="display: none">
+            <table class="table table-condensed" id='tbllista'>
+                <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Product</th>
+                    <th style="text-align: center">Qty.</th>
+                    <th style="text-align: center">Price</th>
+                    <th style="text-align: center">Value</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id='listaprod'>
+                <tr>
+                    <td colspan="8"><i>CHOOSE PRODUCTS</i></td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="4"></td>
+                    <td id='totalvalor' style="text-align: right" class="bigger"><b>$0.00</b></td>
+                </tr>
+                <tr>
+                    <td colspan="6" style="text-align: center">
+                        <a href="#" class="btn btn-success" style="display: none" id='confirmar'><i class="fa fa-check-square-o fa-fw"></i> CONFIRM</a>
+                        <a href="#" class="btn btn-danger" style="display: none" id='cancelar'><i class="fa fa-times fa-fw"></i> CANCEL</a>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+
+

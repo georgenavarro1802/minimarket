@@ -1,0 +1,94 @@
+{% extends "basebs.html" %}
+{% load humanize %}
+
+{% block canvas %}
+    <div class='row-fluid'>
+        <div class="span12">
+            <div class='span11'>
+                <h3>{{ title }}</h3>
+            </div>
+            <div class='atright'>
+                <a href="/" class='btn'><i class="icon-arrow-left"></i> Back</a>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div class="row-fluid">
+        <div class="span12">
+            <table class='table table-bordered table-striped'>
+                <thead>
+                <tr>
+                    <th style="width: 100px; text-align: center">Start Date</th>
+                    <th style="width: 100px; text-align: center">Start Time</th>
+                    <th style="width: 100px; text-align: center">End Date</th>
+                    <th style="width: 100px; text-align: center">End Time</th>
+                    <th style="width: 100px; text-align: center">Cash Fund</th>
+                    <th style="width: 100px; text-align: center">Initial Invoice</th>
+                    <th style="width: 100px; text-align: center">Final Invoice</th>
+                    <th style="width: 50px; text-align: center">Status</th>
+                    <th style="width: 80px"> </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for sesion in sesiones %}
+                    <tr>
+                        <td style="text-align: center">{{ sesion.fecha|date:'d-m-Y' }}</td>
+                        <td style="text-align: center">{{ sesion.fecha|time:'H:i a' }}</td>
+                        <td style="text-align: center">{{ sesion.cierre_sesion.fecha|date:'d-m-Y' }}</td>
+                        <td style="text-align: center">{{ sesion.cierre_sesion.fecha|time:'H:i a' }}</td>
+                        <td style="text-align: center">${{ sesion.fondo|floatformat:2|intcomma }}</td>
+                        <td style="text-align: center">{{ sesion.facturaempieza }}</td>
+                        <td style="text-align: center">{{ sesion.facturatermina|default_if_none:"" }}</td>
+                        <td style="text-align: center">
+                            {% if sesion.abierta %}
+                                <label class="label label-success">OPEN</label>
+                            {% else %}
+                                <label class="label label-inverse">CLOSE</label>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+                                    Actions
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu pull-right">
+                                    {% if sesion.abierta %}
+                                        <li><a href="/caja?action=closesesion&id={{ sesion.id }}"><i class="fa fa-times-circle"></i> Close Session</a></li>
+                                    {% else %}
+                                        <li><a href="/reportes?action=run&direct=true&n=cierre_sesion_caja&rt=pdf&sesion={{ sesion.id }}"><i class="fa fa-print"></i> Print Closed Register</a> </li>
+                                        <li><a href="/reportes?action=run&direct=true&n=listado_ingresos_caja&rt=pdf&sesion={{ sesion.id }}"><i class="fa fa-print"></i> Print Incomes</a> </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="10">
+                            THERE IS NO EXISTS CASH REGISTER SESSIONS IN THE SYSTEM
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span3">
+            {% if not exists_open_sessions %}
+                <a href="/caja?action=addsesion" class="btn btn-success"><i class="fa fa-plus"></i> New Session</a>
+            {% endif %}
+        </div>
+        <div class="span9">
+            <div class="pagination">
+                <ul>
+                    {% for pagenumber in paging.page_range %}
+                        <li {% ifequal pagenumber page.number %}class='active'{% endifequal %}><a href="/caja?page={{ pagenumber }}">{{ pagenumber }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

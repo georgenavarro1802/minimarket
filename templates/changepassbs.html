@@ -1,0 +1,16 @@
+{% extends "formbs.html" %}
+{% block extraheading %}
+    <script>
+        $(function () {
+            $("#id_anterior,#id_nueva").addClass("validate[required]");
+            $("#id_repetir").addClass("validate[required,equals[id_nueva]]");
+        });
+    </script>
+{% endblock %}
+{% block titulo %}{{ title }}{% endblock %}
+{% block formaction %}/pass{% endblock %}
+{% block formwidth %}form-s{% endblock %}
+{% block formextra %}
+{% endblock %}
+{% block formback %}/{% endblock %}
+{% block buttonname %}Change{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "formbs.html" %}
+{% block extraheading %}
+    <script>
+        $(function () {
+            $("#id_fondo, #id_facturaempieza").addClass("validate[required]");
+
+            $("#id_fondo").blur(function () {
+                numerico($(this), 0, 0, 0);
+            });
+        });
+    </script>
+{% endblock %}
+{% block titulo %}{{ title }}{% endblock %}
+{% block formwidth %}form-s{% endblock %}
+{% block formaction %}/caja{% endblock %}
+{% block formdestination %}/caja{% endblock %}
+{% block formextra %}
+    <input type='hidden' name='action' value='abrirsesion'/>
+{% endblock %}
+{% block formback %}/caja{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "formbs.html" %}
+
+
+{% block extraheading %}
+
+{% endblock %}
+{% block javascript %}
+    $("#id_motivo").addClass("validate[required]");
+
+{% endblock %}
+{% block titulo %}
+    Anular Factura ({{ factura }})
+{% endblock %}
+{% block formaction %}/facturas{% endblock %}
+{% block formextra %}
+    <input type='hidden' name='action' value='anular'/>
+    <input type='hidden' name='id' value='{{ factura.id }}'/>
+
+{% endblock %}
+{% block formback %}/facturas{% endblock %}
+{% block buttonname %}Anular{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "basebs.html" %}
+{% load humanize %}
+
+{% block canvas %}
+    <div class='row-fluid'>
+        <div class="span12">
+            <div class='span11'>
+                <h3>{{ title }}</h3>
+            </div>
+            <div class='atright'>
+                <a href="/" class='btn'><i class="icon-arrow-left"></i> Back</a>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div class='row-fluid'>
+        <div class='span12'>
+            <ul class="nav nav-tabs">
+                <li class="active">
+                    <a data-toggle="tab" href="#tbl_dia">
+                        Cash register operations today
+                    </a>
+                </li>
+                <li>
+                    <a data-toggle="tab" href="#tbl_fecha">
+                        Cash register operations by date
+                    </a>
+                </li>
+                <li>
+                    <a data-toggle="tab" href="#tbl_hist">
+                        Cash register income by range of dates
+                    </a>
+                </li>
+                <li>
+                    <a data-toggle="tab" href="#tbl_pagostiposrubros">
+                        Paid values by product types
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+
+                <div id="tbl_dia" class="tab-pane fade in active">
+
+                    <div class="row-fluid">
+                        <div class='span6'>
+                            {% if sesioncaja_dia %}
+                                <table class='table table-striped table-bordered'>
+                                    <thead>
+                                    <tr>
+                                        <th colspan="2" style="text-align: center">
+                                            Cash Register # {{ sesioncaja_dia.repr_id }}
+                                            <a href='#' style="float: right;"><img src='/static/img/16/barchart.png'/> Chart</a>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th>CASHIERS</th>
+                                        <th style='text-align: center; width: 150px'>INCOMES</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>{{ sesioncaja_dia.cajero }}</td>
+                                        <td style="text-align: center">$ {{ sesioncaja_dia.total_efectivo_sesion|floatformat:2|intcomma }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    There is not exists <strong>Cash Register Session</strong> today
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tbl_fecha" class="tab-pane fade">
+                    <h3>Menu 1</h3>
+                    <p>Some content in menu 1.</p>
+                </div>
+
+                <div id="tbl_hist" class="tab-pane fade">
+                    <h3>Menu 2</h3>
+                    <p>Some content in menu 2.</p>
+                </div>
+
+                <div id="tbl_pagostiposrubros" class="tab-pane fade">
+                    <h3>Menu 3</h3>
+                    <p>Some content in menu 3.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

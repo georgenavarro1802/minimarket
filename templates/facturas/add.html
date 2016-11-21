@@ -1,0 +1,327 @@
+{% extends "basebs.html" %}
+{% block heading %}
+    <style type="text/css">
+    .detalle {
+        width: 156px;
+        height: 70px;
+    }
+    </style>
+    <script src='/static/js/notificacionpanel.js'></script>
+    <script src="/static/js/bootstrap-tagmanager.js"></script>
+    <link rel="stylesheet" href="/static/css/bootstrap-tagmanager.css" type="text/css" media="screen" />
+    <script>
+    $(function() {
+        $("#id_diva, #id_dsubtotal, #id_dtotal").attr("disabled","disabled");
+        $("#id_diva, #id_dsubtotal, #id_dtotal, #id_dcantidad, #id_dpvp").addClass("input-medium");
+        $("#id_detalle").addClass("detalle");
+
+    prety = function(v) {
+        return $.fn.floats.pretify_fn(v.toFixed(2), {prefix: '$', thousandSeparator: ',', decimalSeparator: ".", sufix: '', decimalPlaces: 2});
+    };
+
+    pretyPct = function(v) {
+        return $.fn.floats.pretify_fn(v.toFixed(1), {prefix: '', thousandSeparator: ',', decimalSeparator: ".", sufix: '%', decimalPlaces: 1});
+    };
+
+    simple = function(sid) {
+        return Big($.fn.floats.simplify_fn($(sid).val(), {prefix: '$', thousandSeparator: ',', sufix: '%'}));
+    };
+
+    simpleV = function(v) {
+        return Big($.fn.floats.simplify_fn(v, {prefix: '$', thousandSeparator: ','}));
+    };
+
+
+        var factura = {items:[]};
+        codigosok=false;
+        $('#itemsadd').click(function(){
+            $("#id_dcantidad").val("");
+            $("#id_dpvp").val("");
+            $("#id_diva").val("");
+            $("#id_dsubtotal").val("");
+            $("#id_dtotal").val("");
+            $("#id_detalle").val("");
+            $("#itemspanel").modal({width: '550px'}); //  height: ($(window).height()*2)/3
+            $("#itemspanel").modal("show");
+            return false;
+
+        });
+
+        $("#itemspanel .btn-cerrar").click(function(){
+            $("#itemspanel").modal("hide");
+            return false;
+        });
+
+        $("#id_dpvp").blur(function(){
+          var c=$("#id_dcantidad").val();
+          var p=$("#id_dpvp").val();
+            var t= 0, sub= 0, iva=0;
+                if (p.trim().length >0 && c.trim().length >0 ){
+                t= p*c;
+                sub = (t/1.2).toFixed(2);
+                iva = (t-sub).toFixed(2);
+                $("#id_dsubtotal").val(sub);
+                $("#id_diva").val(iva);
+                $("#id_dtotal").val(t);
+            }
+          return false;
+        });
+
+        $("#id_dcantidad").blur(function(){
+          var c=$("#id_dcantidad").val();
+          var p=$("#id_dpvp").val();
+            var t= 0, sub= 0, iva=0;
+                if (p.trim().length >0 && c.trim().length >0 ){
+                t= (p*c);
+                sub = (t/1.2).toFixed(2);
+                iva = (t-sub).toFixed(2);
+                $("#id_dsubtotal").val(sub);
+                $("#id_diva").val(iva);
+                $("#id_dtotal").val(t);
+                }
+           return false;
+        });
+
+        commafyValue = function(nStr)
+        {
+            nStr += '';
+            x = nStr.split('.');
+            x1 = x[0];
+            x2 = x.length > 1 ? '.' + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+            while (rgx.test(x1)) {
+                x1 = x1.replace(rgx, '$1' + ',' + '$2');
+            }
+        return x1 + x2;
+        };
+        $("#id_dpvp").blur(function(){
+            $(this).val(commafyValue($(this).val()))  ;
+          $(this).val($(this).val().replace(",","."));
+        });
+
+         eliminarItem = function() {
+            var index = $(this).attr("index");
+            factura.items.splice(index,1);
+            updateItems();
+            return false;
+        };
+
+        updateItems = function() {
+            if (factura.items.length==0) {
+                $("#itemsbody").html("<tr><td colspan='8'>INGRESE LOS PRODUCTOS</td></tr>");
+                $("#totalitems").html(Big(0));
+            } else {
+                $("#itemsbody").empty();
+                var sum = Big(0);
+                for (var i in factura.items) {
+                    var item =factura.items[i];
+                    $("#itemsbody").append("<tr>" +
+                            "<td>"+item.cantidad+"</td>" +
+                            "<td colspan='3' >"+item.detalle+"</td>" +
+                            "<td class='atright'>"+item.pvp+"</td>" +
+                            "<td class='atright'>"+item.total+"</td>" +
+                            "<td style='width:40px;'><a href='#' class='btn btn-medium btn-danger eliminaritem' index='"+i+"'><i class='icon-remove icon-white'></i></a></td>" +
+                            "</tr>");
+                    sum = sum.plus(item.total);
+                }
+                $("#itemsbody .eliminaritem").click(eliminarItem);
+                $("#totalitems").html(+sum);
+                $("#totalitems").addClass("alert alert-info");
+            }
+        };
+
+
+        $("#itemspanel .btn-adicionar").click(function() {
+            var item = {};
+            item.cantidad = $("#id_dcantidad").val();
+            item.detalle = $("#id_detalle").val().toUpperCase();
+            item.total = $("#id_dtotal").val();
+            item.iva = $("#id_diva").val();
+            item.pvp = $("#id_dpvp").val();
+            item.subtotal = $("#id_dsubtotal").val();
+            factura.items.push(item);
+{#            saveFormData();#}
+            updateItems();
+            $("#itemspanel .incompleto").hide();
+            $("#itemspanel").modal("hide");
+
+            return false;
+        });
+
+          buscar_cliente = function(query, process) {
+            var cli_id = $("#id_cliente").attr("myval");
+                var tipo={{ CLIENTES_EXTERNOS_ID }}
+                 $.get("/reportes", {'action':'data', 'model': 'Cliente:tipo__id='+tipo, 'p': 1, 'q': query, 's': 10}, function(data) {
+                if (data.results) {
+                    console.log (data.results);
+                    if (data.results.length>0) {
+                        $("#id_cliente").get(0).results = data.results;
+                        listing = [];
+                        for (var i in data.results) {
+                            var dato = data.results[i];
+                            listing.push(dato.name);
+                        }
+                        process(listing);
+                    } else {
+                        $("#id_nombre, #id_telefono, #id_direccion").val("");
+                        $("#id_nombre, #id_telefono, #id_direccion").removeAttr("disabled");
+                        process([query]);
+                    }
+                }
+            }, "json");
+        };
+
+        updater_cliente = function(item) {
+            var results = $("#id_cliente").get(0).results;
+            for (var i in results) {
+                var datos = results[i];
+                if (item==datos.name) {
+                    $("#id_cliente").attr("myval",datos.alias[0]);
+                    $("#id_nombre").val(datos.alias[1]);
+                    $("#id_direccion").val(datos.alias[2]);
+                    $("#id_telefono").val(datos.alias[3]);
+                    $("#id_nombre, #id_telefono, #id_direccion").attr("disabled","disabled");
+                    return datos.alias[0];
+                }
+            }
+            return item;
+        };
+        $("#id_cliente").blur(function(){
+            $.post("/facturas", {"action":'buscafactura'}, function(data) {
+                if (data.result=='ok') {
+                    $("#id_numero").val(data.factura);
+                }
+            }, "json");
+
+        });
+
+
+        $("#id_cliente").typeahead({source: buscar_cliente, updater: updater_cliente});
+
+        $("#ingresardatos").click(function() {
+            factura.ruc=$("#id_cliente").val();
+            factura.nombre=$("#id_nombre").val();
+            factura.telefono=$("#id_telefono").val();
+            factura.direccion=$("#id_direccion").val();
+            factura.numero=$("#id_numero").val();
+            factura.total=$("#totalitems").html();
+            var t =factura.total;
+            factura.sub = (t/1.12).toFixed(2);
+            factura.iva = (t-factura.sub).toFixed(2);
+
+            // Enviar al servidor
+
+            $.post("/facturas", {"action":'add', "datos": JSON.stringify(factura)}, function(data) {
+                if (data.result=='ok') {
+                    location.href='/facturas';
+                }
+            }, "json");
+
+            return false;
+        });
+
+    });
+    </script>
+{% endblock %}
+{% block canvas %}
+    <div class='row-fluid'>
+        <div class='span11'>
+            <h3>Ingreso de Factura</h3>
+        </div>
+        <div class='span1'>
+            <a href="/facturas" class="btn"><i class="icon-arrow-left"></i> Atr&aacute;s</a>
+        </div>
+    </div>
+
+    <div class='row-fluid'>
+            <div class='span8'>
+{#                <h4>Datos Generales</h4>#}
+                <form id="formulario" class='well {% block form-type %}form-horizontal{% endblock %}' action="{% block formaction %}{% endblock %}" method="POST" {% block formtagextra %}{% endblock %}>
+                    {% block formextra %}
+                    {% endblock %}
+                    {% for field in form %}
+                        <fieldset class="control-group nomargins">
+                            <label class="control-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                            <div class="controls">
+                                {{ field }}
+                                <p class="help-text">{{ field.help_text }} </p>
+                            </div>
+                        </fieldset>
+                    {% endfor %}
+                </form>
+            </div>
+    </div>
+    <div class='row-fluid'>
+        <div class="span12">
+            <h4>Items</h4>
+            <form id="formulario4" class='well form-horizontal' action="" method="POST">
+                <table class="table table-bordered" style="margin-bottom: 0;">
+                    <thead>
+                    <tr>
+                        <th>Cantidad</th>
+                        <th colspan="3" >Detalle</th>
+                        <th>PVP</th>
+                        <th>Total</th>
+{#                        <th>cafeteria</th>#}
+                        <th> </th>
+                    </tr>
+                    </thead>
+                    <tbody id="itemsbody" class="datatable">
+                    <tr>
+                        <td colspan="5">
+                            INGRESE LOS PRODUCTOS A FACTURAR
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="5" style="text-align: right;"><span id="itemscompleto" class="label label-important"></span> <b>Total:</b></td>
+                        <td class="bigger datatable atright" id="totalitems">$0.00</td>
+                        <td colspan="2"> </td>
+                    </tr>
+                    </tfoot>
+                </table>
+                <span class='help-text' id="itemshelptext"></span><br/>
+                <a href="#" id="itemsadd" class="btn btn-info"><i class="icon-plus icon-white"></i> Adicionar</a>
+            </form>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="span12">
+            <a href="#" id="ingresardatos" class="btn btn-success btn-large">INGRESAR</a>
+        </div>
+    </div>
+{% endblock %}
+{% block moreblock %}
+    <div class="modal fade static" id="itemspanel" style="display: none;  ">
+        <div class="modal-header"  >
+            <h3 class="paneltitle">Adicionar Producto</h3>
+        </div>
+        <div class="modal-body panelbody">
+            <div class="alert alert-danger incompleto" style="display: none;">
+                Complete todos los campos para continuar.
+            </div>
+            <form id="formulario5" class='form-horizontal' action="" method="POST">
+
+                {% for field in form4 %}
+                    <fieldset class="control-group nomargins">
+                        <label class="control-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                        <div class="controls">
+                            {{ field }}
+                            <p class="help-text">{{ field.help_text }} </p>
+                        </div>
+                    </fieldset>
+                {% endfor %}
+            </form>
+        </div>
+        <div class="modal-footer">
+
+        <div class="span7 alert alert-danger"  id="alertaingreso" style="display: none; position: relative; text-align: center"> ESTE PRODUCTO YA ESTÁ EN LA LISTA
+        </div>
+            <a href="#" class="btn btn-adicionar btn-success">Adicionar</a>
+            <a href="#" class="btn btn-cerrar">Cerrar</a>
+        </div>
+    </div>
+    {% include "notificacionpanel.html" %}
+    {% include "proveedores/adicionarmodal.html" %}
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "deletebs.html" %}
+{% block titulo %}{{ title }}{% endblock %}
+{% block formback %}/proveedores{% endblock %}
+{% block formaction %}/proveedores{% endblock %}
+{% block formdestination %}/proveedores{% endblock %}
+{% block formactionvalue %}delete{% endblock %}
+{% block formobjectid %}{{ proveedor.id }}{% endblock %}
+{% block formobjectname %}from the list of suppliers {% endblock %}
+{% block formobjectrepr %}{{ proveedor }}{% endblock %}
+

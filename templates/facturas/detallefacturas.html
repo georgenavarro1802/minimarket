@@ -1,0 +1,29 @@
+<div class="row-fluid">
+<div class="span12">
+    <table class="table table-condensed table-stripped">
+        <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>PVP</th>
+            <th>Subtotal</th>
+            <th>Iva</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+    <tbody>
+        {% for d in factura.detalle.all %}
+            <tr>
+                <td style="text-align: left"> {{ d.detalle }}</td>
+                <td style="text-align: center"> {{ d.cantidad|floatformat:0 }}</td>
+                <td  style="text-align: center"> {{ d.pvp|floatformat:2 }}</td>
+                <td  style="text-align: center"> {{ d.subtotal|floatformat:2 }}</td>
+                <td  style="text-align: center"> {{ d.iva|floatformat:2 }}</td>
+                <td  style="text-align: center"> {{ d.total|floatformat:2 }}</td>
+
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+</div>

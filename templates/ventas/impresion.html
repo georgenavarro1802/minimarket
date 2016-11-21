@@ -1,0 +1,120 @@
+<script src="/static/js/jquery.min.js"></script>
+<script>
+    $(function() {
+
+        window.onload = function(){
+            window.print();
+            setTimeout(function(){
+                window.close();
+            },1);
+        };
+
+    });
+
+</script>
+
+<div id='areaimpresion' style="position: absolute; left: 0; top: 0;" >
+    <table style="font-family: monospace">
+        <thead>
+        <tr>
+            <td colspan="8"><h4>MiniMARKET APP</h4></td>
+        </tr>
+        {% for dg in datos_generales_impresion %}
+            <tr>
+                <th style="text-align: left">ID: </th>
+
+                <th style="text-align: left"> {{ dg.0 }} </th>
+            </tr>
+            <tr>
+                <th  style="text-align: left">Customer: </th>
+
+                <th style="text-align: left">  {{ dg.1 }} </th>
+            </tr>
+
+            <tr>
+                <th  style="text-align: left">Address: </th>
+
+                <th style="text-align: left">  {{ dg.2 }} </th>
+            </tr>
+
+            <tr>
+                <th  style="text-align: left">Date: </th>
+
+                <th style="text-align: left">  {{ dg.9 }} </th>
+            </tr>
+
+            <tr>
+                <td colspan="8"><hr/></td>
+            </tr>
+
+        {% endfor %}
+        </thead>
+
+        <tbody>
+        {% for dp in datos_productos_impresion %}
+            <tr>
+                <td class="smaller" style="text-align: left" nowrap>
+                    {{ dp.0 }}                  <!-- Alias del producto  -->
+                </td>
+                <td></td>
+                <td class="smaller" style="text-align: center" nowrap>
+                    {{ dp.1|floatformat:0 }}X    <!-- Cantidad -->
+                </td>
+                <td></td>
+                <td class="smaller" style="text-align: center" nowrap>
+                    ${{ dp.2|floatformat:2 }}   <!-- Costo unitario -->
+                </td>
+                <td></td>
+                <td></td>
+                <td class="smaller" style="text-align: right" nowrap>
+                    ${{ dp.3|floatformat:2 }}   <!-- Valor Linea -->
+                </td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="8"><hr/></td>
+        </tr>
+        </tbody>
+
+        <tfoot>
+        {% for dg in datos_generales_impresion %}
+            <tr>
+                <td class="smaller" colspan="7">SUBT:</td>
+                <td class="smaller" nowrap style="text-align: left"> ${{ dg.3|floatformat:2 }}</td> <!-- Subtotal -->
+            </tr>
+            <tr>
+                <td class="smaller" colspan="7">TAX (7%):</td>
+                <td class="smaller" nowrap style="text-align: left"> ${{ dg.4|floatformat:2 }}</td> <!-- IVA -->
+            </tr>
+            <tr>
+                <td class="smaller" colspan="7">TOTAL:</td>
+                <td class="smaller" nowrap style="text-align: left"> ${{ dg.5|floatformat:2 }}</td> <!-- Total -->
+            </tr>
+            <tr>
+                <td class="smaller" colspan="7">PAYMENT:</td>
+                <td class="smaller" nowrap style="text-align: left"> ${{ dg.6|floatformat:2 }}</td> <!-- Pagado -->
+            </tr>
+            <tr>
+                <td class="smaller" colspan="7">CASHBACK: </td>
+                <td class="smaller" nowrap style="text-align: left"> ${{ dg.7|floatformat:2 }}</td> <!-- Devolucion -->
+            </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="8"></td>
+        </tr>
+        <tr>
+            <td colspan="8" style="text-align: center"><h5><i>T H A N K S </i></h5></td>
+        </tr>
+        <tr>
+            <td colspan="8"></td>
+        </tr>
+        </tfoot>
+    </table>
+
+</div>
+
+
+
+
+
+

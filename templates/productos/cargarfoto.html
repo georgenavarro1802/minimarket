@@ -1,0 +1,10 @@
+{% extends "formbs.html" %}
+{% block titulo %}{{ title }}{% endblock %}
+{% block subtitulo %}{{ producto }}{% endblock %}
+{% block formaction %}/productos{% endblock %}
+{% block formdestination %}/productos{% endblock %}
+{% block formextra %}
+    <input type='hidden' name='action' value='cargarfoto'/>
+    <input type='hidden' name='id' value='{{ producto.id }}'/>
+{% endblock %}
+{% block formback %}/productos{% endblock %}

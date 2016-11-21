@@ -1,0 +1,108 @@
+{% extends "basebs.html" %}
+{% load humanize %}
+{% block heading %}
+    <script>
+        $(function() {
+
+            $("#search").click(function() {
+                var term = $("#searchfield").val().toUpperCase();
+                location.href = "/inventarios?s="+term;
+            });
+
+            $('#searchfield').keyup(function(e) {
+                if(e.keyCode == 13) {
+                    $("#search").trigger("click");
+                }
+            });
+
+        });
+    </script>
+{% endblock %}
+{% block canvas %}
+    <div class='row-fluid'>
+        <div class="span12">
+            <div class='span11'>
+                <h3>{{ title }}</h3>
+            </div>
+            <div class='atright'>
+                <a href="/" class='btn'><i class="icon-arrow-left"></i> Back</a>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div class="row-fluid">
+        <div class='span8'>
+            <form class="form-search">
+                <input class='searchinput input-large search-query' type='text' id='searchfield' value='{{ search }}'/>
+                <a href="#" id='search' class='btn btn-info'><i class="fa fa-search"></i> Search</a>
+                {% if search %}
+                    <a href="/inventarios" id='allresults' class='btn btn-primary'><i class="fa fa-refresh"></i> All</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div class='row-fluid'>
+        <table class='table table-bordered table-striped' cellpadding="0" cellspacing="0">
+            <thead>
+            <tr>
+                <th style="width: 120px">Code</th>
+                <th>Description</th>
+                <th style="text-align: center; width: 60px">UM</th>
+                <th style="width: 100px; text-align: center">Quantity</th>
+                <th style="text-align: center; width: 90px">Cost</th>
+                <th style="text-align: center; width: 90px">Value</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for inv in inventarios %}
+                <tr>
+                    <td>{{ inv.producto.codigo }}</td>
+                    <td>{{ inv.producto.descripcion }}</td>
+                    <td style="text-align: center">{{ inv.producto.unidadmedida }}</td>
+                    <td style="text-align: right">{{ inv.cantidad|floatformat:2 }}</td>
+                    <td style="text-align: right">${{ inv.costo|floatformat:2|intcomma }}</td>
+                    <td style="text-align: right">${{ inv.valor|floatformat:2|intcomma }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="10">
+                        THERE IS NO EXISTS SUPPLIERS IN THE SYSTEM
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class='row-fluid'>
+        <div class="span12">
+            {% if paging.num_pages > 10 %}
+                <div class='pagination'>
+                    <ul>
+                        {% if paging.primera_pagina %}
+                            <li><a href="/inventarios?page=1">1</a></li>
+                            <li><a href="/inventarios?page={{ paging.ellipsis_izquierda }}" class="active">...</a></li>
+                        {% endif %}
+                        {% for pagenumber in paging.paginas %}
+                            <li {% ifequal pagenumber page.number %}class='active'{% endifequal %}><a href="/inventarios?page={{ pagenumber }}{% if search %}&s={{ search }}{% endif %}">{{ pagenumber }}</a></li>
+                        {% endfor %}
+                        {% if paging.ultima_pagina %}
+                            <li><a href="/inventarios?page={{ paging.ellipsis_derecha }}" class="active">...</a></li>
+                            <li><a href="/inventarios?page={{ paging.num_pages }}">{{ paging.num_pages }}</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            {% else %}
+                <div class='pagination'>
+                    <ul>
+                        {% for pagenumber in paging.page_range %}
+                            <li {% ifequal pagenumber page.number %}class='active'{% endifequal %}><a href="/inventarios?{% if search %}s={{ search }}&{% endif %}page={{ pagenumber }}">{{ pagenumber }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

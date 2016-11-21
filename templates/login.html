@@ -1,0 +1,50 @@
+{% extends "basebs.html" %}
+{% block containertype %}{% endblock %}
+{% block contentextraclass %}bg1{% endblock %}
+{% block pagetitle %}Log In - Minimarket{% endblock %}
+{% block canvas %}
+    <div class="row">
+        <div id="maincontent" class="intro-header">
+            <div class='span6'>
+                <div class="intro-message">
+                    <h1>MiniMarket App</h1>
+                    <h3>by: George Navarro</h3>
+                    <hr class="intro-divider">
+                    <ul class="list-inline intro-social-buttons">
+                        <li>
+                            <a href="https://www.twitter.com/aokgeorge" class="btn btn-default btn-lg" target="_blank"><i class="fa fa-twitter fa-fw"></i> <span class="network-name">Twitter</span></a>
+                            <a href="https://www.linkedin.com/gnavarrog1802" class="btn btn-default btn-lg" target="_blank" style="margin-left: 1em"><i class="fa fa-linkedin fa-fw"></i> <span class="network-name">Linkedin</span></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="span2"></div>
+            <div class="span4">
+                <form class="well" style="background-image: linear-gradient(to bottom, #FF6600, #FFB685);" action='/login' method="POST">
+                    <h3>Sign In</h3>
+                    {% if error %}
+                        <div class="alert alert-error">
+                            {% ifequal error "1" %}
+                                Incorrect credentials !
+                            {% endifequal %}
+                            {% ifequal error "3" %}
+                                User is inactive !
+                            {% endifequal %}
+                        </div>
+                    {% endif %}
+
+                    <fieldset>
+                        <input type="hidden" name='ret' value='{{ return_url }}'/>
+                        <label for="user" style="text-align: left"><strong>User</strong></label>
+                        <input type='text' id='username' name='username' style="text-transform: none;" class='input-block-level'/>
+                        <label for="pass" style="text-align: left"><strong>Password</strong></label>
+                        <input type='password' id='password' name='password'  style="text-transform: none;" class="input-block-level"/>
+                    </fieldset>
+                    <fieldset>
+                        <button type='submit' name='boton' class="btn btn-success btn-large btn-block"><i class="icon-chevron-right icon-white"></i> Entrar</button>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,515 @@
+<script>
+    $(function() {
+        $("#id_tipo").addClass("input-large");
+        $("#id_ruc, #id_telefono").addClass("input-small");
+
+        $("#datosclientes").hide();
+        $("#otrotipoc").hide();
+
+        $('#pago').keyup(function(e) {
+            if(e.keyCode == 13) {
+                $(".iconprod2").trigger("click");
+            }
+        });
+
+        $('#aceptar').keyup(function(e) {
+            if(e.keyCode == 13) {
+                $(".btn-si").trigger("click");
+            }
+        });
+
+        prety = function(v) {
+            return $.fn.floats.pretify_fn(v.toFixed(2), {prefix: '$', thousandSeparator: ',', decimalSeparator: ".", sufix: '', decimalPlaces: 2});
+        };
+
+        pretyPct = function(v) {
+            return $.fn.floats.pretify_fn(v.toFixed(1), {prefix: '', thousandSeparator: ',', decimalSeparator: ".", sufix: '%', decimalPlaces: 1});
+        };
+
+        simple = function(sid) {
+            return Big($.fn.floats.simplify_fn($(sid).val(), {prefix: '$', thousandSeparator: ',', sufix: '%'}));
+        };
+
+        simpleV = function(v) {
+            return Big($.fn.floats.simplify_fn(v, {prefix: '$', thousandSeparator: ','}));
+        };
+
+        //ENVIAR AL SERVIDORRRRRRRRRRR (Luego del SI de pantalla de Confirmacion)
+        $("#confirmacionpanel .btn-si").click(function(){
+            items.clienteid = $("#sel_cliente").val();
+            items.total = $("#total").html();
+            items.subtotal = $("#subtotal").html();
+            items.iva = $("#iva").html();
+            items.pago = $("#pago").val();
+            items.devolucion = $("#devolucion").html();
+
+            $.post("/ventas", {'action': 'guardar', "items": JSON.stringify(items), 'productos': JSON.stringify(items.productos)}, function(data){
+                if (data.result=='ok'){
+                    $("#confirmacionpanel").modal("hide");
+                    $("#facturapanel").modal("hide");
+                    //IMPRIMIRRRRRRR
+                    window.open(data.urlimpresion);
+                    location.href = '/ventas';
+                    $("#logo").show();
+                }else{
+                    location.href = '/ventas';
+                }
+                return false;
+            }, "json");
+
+            return false;
+        });
+
+        $("#pago").blur(function(){
+            var total = parseFloat($("#total").html());
+            var dev = 0;
+            if ($(this).val()>0){
+                dev = Math.round(($("#pago").val() - total)*100)/100;
+                $("#devolucion").html(dev.toFixed(2));
+            }else{
+                $("#devolucion").html(total.toFixed(2));
+            }
+            return false;
+        });
+
+        $("#confirmacionpanel .btn-no").click(function(){
+            $("#confirmacionpanel").modal("hide");
+            return false;
+        });
+
+        //Imagen de Facturar
+        $("#generate_payment").click(function(){
+            var devolucion = $("#devolucion").html();
+            var total = parseFloat($("#total").html());
+            var dev = 0;
+            var elem_payment = $("#pago");
+            if (elem_payment.val() != '' && elem_payment.val() > 0){
+
+                if (elem_payment.val() >= total){
+                    dev = Math.round((elem_payment.val() - total)*100)/100;
+                    $("#devolucion").html(dev.toFixed(2));
+                    $("#devol").html(dev.toFixed(2));
+                    $("#confirmacionpanel").modal({'backdrop': 'static'}).modal("show").on('shown', function(){
+                        $("#confirmacionpanel").find("#aceptar").focus();
+                    });
+                }else{
+                    $("#alertafacturapanel").modal({"backdrop": "static"}).modal("show");
+                    elem_payment.val("");
+                    $("#devolucion").html(total.toFixed(2));
+                    $("#confirmacionpanel").modal("hide");
+                }
+            }else{
+                $("#alertafacturapanel").modal({"backdrop": "static"}).modal("show");
+                elem_payment.val("");
+                $("#devolucion").html(total.toFixed(2));
+                $("#confirmacionpanel").modal("hide");
+            }
+            return false;
+        });
+
+        //FUNCION PRINCIPAL
+
+        $(".iconprod").click(function(){
+            var idprod = $(this).attr("idprod");
+            var prod = $(this).attr("nombreprod");
+            var invprod = $(this).attr("invprod");
+            var pvpprod = parseFloat($(this).attr("pvpprod"));
+            var fotoprod = $(this).attr("fotoprod");
+            var aliasprod = $(this).attr("aliasprod");
+            var codprod = $(this).attr("codprod");
+            var flat = false;
+            if ($(this).attr("name")==''){
+                if (items.productos.length>0){
+                    for (var i in items.productos) {
+                        if (aliasprod==items.productos[i].aliasproducto){
+                            items.productos[i].cantidad += 1;
+                            items.productos[i].valor = Math.round((items.productos[i].cantidad * items.productos[i].pvpproducto)*100)/100;
+                            flat = true;
+                            comprobarDisponibilidad();
+                        }
+                    }
+                    if (!flat){
+                        var item = {};
+                        item.codproducto = codprod;
+                        item.aliasproducto = aliasprod;
+                        item.cantidad = 1;
+                        item.pvpproducto = pvpprod;
+                        item.invproducto = invprod;
+                        var subtotal = 0;
+                        var iva = 0;
+
+                        item.valor = Math.round((item.cantidad * item.pvpproducto)*100)/100;
+                        subtotal = Math.round((item.valor / 1.12)*100)/100;
+                        iva = Math.round((item.valor - subtotal)*100)/100;
+                        item.subtotal = subtotal;
+                        item.iva = iva;
+
+                        items.productos.push(item);
+
+                        $("#confirmar").show();
+                        $("#cancelar").show();
+                    }
+
+                }else{
+                    var item = {};
+                    item.codproducto = codprod;
+                    item.aliasproducto = aliasprod;
+                    item.cantidad = 1;
+                    item.pvpproducto = pvpprod;
+                    item.invproducto = invprod;
+                    var subtotal = 0;
+                    var iva = 0;
+
+                    item.valor = Math.round((item.cantidad * item.pvpproducto)*100)/100;
+                    subtotal = Math.round((item.valor / 1.12)*100)/100;
+                    iva = Math.round((item.valor - subtotal)*100)/100;
+                    item.subtotal = subtotal;
+                    item.iva = iva;
+
+                    items.productos.push(item);
+
+                    $("#confirmar").show();
+                    $("#cancelar").show();
+                }
+                updateItems();
+            }
+            return false;
+        });
+
+        eliminarItem = function() {
+            var index = $(this).attr("index");
+            items.productos[index].cantidad -= 1;
+            items.productos[index].valor -= items.productos[index].pvpproducto;
+            if (items.productos[index].cantidad == 0){
+                items.productos.splice(index,1);
+            }
+            updateItems();
+            return false;
+        };
+
+        eliminarItem2 = function() {
+            var index = $(this).attr("index");
+            items.productos[index].cantidad -= 1;
+            items.productos[index].valor -= items.productos[index].pvpproducto;
+            if (items.productos[index].cantidad == 0){
+                items.productos.splice(index,1);
+            }
+            updateItems2();
+            return false;
+        };
+
+        //Verificar que ya no tenga disponibilidad  asignar Estilos
+        comprobarDisponibilidad = function(){
+            for (var i in items.productos) {
+                var item = items.productos[i];
+
+                if (items.productos[i].cantidad == items.productos[i].invproducto){
+                    $("#icon"+items.productos[i].codproducto).attr("style", "background-color: red; color:white; font-weight: bold;").attr("name", "nodisponible");
+                }else{
+                    $("#icon"+items.productos[i].codproducto).removeAttr("style").attr("name", "");
+                }
+            }
+        };
+
+        updateItems2 = function() {
+            if (items.productos.length==0) {
+                $("#listaprod").html("<tr><td colspan='6'><i>INGRESE LOS PRODUCTOS</i></td></tr>");
+                $("#totalvalor").html("0.00");
+                $("#confirmar").hide();
+                $("#cancelar").hide();
+
+            } else {
+                $("#listaprod").empty();
+                var sum = 0;
+                for (var i in items.productos) {
+                    var item = items.productos[i];
+                    $("#listaprod").append("<tr>" +
+                            "<td>"+item.codproducto+"</td>" +
+                            "<td>"+item.aliasproducto+"</td>" +
+                            "<td style='text-align: center'>"+item.cantidad+"</td>" +
+                            "<td class='atright'>$"+item.pvpproducto.toFixed(2)+"</td>" +
+                            "<td class='atright'>$"+item.valor.toFixed(2)+"</td>" +
+                            "<td><a href='#' class='btn btn-info btn-mini eliminaritem' index='"+i+"'><i class='icon-minus icon-white'></i> </a></td>" +
+                            "</tr>");
+                    sum = sum + item.valor;
+                }
+                $("#listaprod .eliminaritem").click(eliminarItem2);
+                $("#totalvalor").html(sum.toFixed(2)).addClass("alert alert-info");
+            }
+        };
+
+        updateItems = function() {
+            if (items.productos.length==0) {
+                $("#listaprod").html("<tr><td colspan='6'><i>INGRESE LOS PRODUCTOS</i></td></tr>");
+                $("#totalvalor").html("0.00");
+                $("#confirmar").hide();
+                $("#cancelar").hide();
+
+            } else {
+                $("#listaprod").empty();
+                var sum = 0;
+                for (var i in items.productos) {
+                    var item = items.productos[i];
+                    $("#listaprod").append("<tr>" +
+                            "<td>"+item.codproducto+"</td>" +
+                            "<td>"+item.aliasproducto+"</td>" +
+                            "<td style='text-align: center'>"+item.cantidad+"</td>" +
+                            "<td class='atright'>$"+item.pvpproducto.toFixed(2)+"</td>" +
+                            "<td class='atright'>$"+item.valor.toFixed(2)+"</td>" +
+                            "<td><a href='#' class='btn btn-info btn-mini eliminaritem' index='"+i+"'><i class='icon-minus icon-white'></i> </a></td>" +
+                            "</tr>");
+                    sum = sum + item.valor;
+                    comprobarDisponibilidad();
+                }
+                $("#listaprod .eliminaritem").click(eliminarItem);
+                $("#totalvalor").html(sum.toFixed(2)).addClass("alert alert-info");
+            }
+        };
+
+        $("#alertafacturapanel .btn-aceptar").click(function(){
+            $("#alertafacturapanel").modal("hide");
+            $("#facturapanel").on('shown', function(){
+                $("#facturapanel").find("#pago").focus();
+            });
+            return false;
+        });
+
+        $("#confirmar").click(function(){
+            var vt = parseFloat($("#totalvalor").html());
+            var subtotal = Math.round((vt / 1.12)*100) / 100;
+            var iva = Math.round((vt - subtotal)*100)/100;
+            $("#total").html(vt.toFixed(2));
+            $("#subtotal").html(subtotal.toFixed(2));
+            $("#iva").html(iva.toFixed(2));
+            $("#facturapanel").on('shown', function(){
+                $(this).find("#pago").focus();
+            });
+            $("#facturapanel").modal({'backdrop':'static', 'width': '450px', 'height': '400px'}).modal("show");
+            return false;
+        });
+
+        $("#cancelar").click(function(){
+            $("#listaprod").empty();
+            $("#cancelar").hide();
+            $("#confirmar").hide();
+            for (var i in items.productos) {
+                var item = items.productos[i];
+                $("#icon"+items.productos[i].codproducto).removeAttr("style").attr("name", "");
+            }
+            items.productos= [];
+            updateItems();
+
+            return false;
+        });
+
+        $("#facturapanel .btn-cerrar").click(function(){
+            $("#pago").val("");
+            $("#facturapanel").modal("hide");
+            return false;
+        });
+
+    });
+
+</script>
+{% for inv in productos_existencias %}
+    <div class='iconprod' {% if not inv.cantidad %} name='nodisponible' style="background-color: red; color: #ffffff ; font-weight: bold" {% else %}  name='' {% endif %} id='icon{{ inv.producto.codigo }}' idprod='{{ inv.producto.id }}' nombreprod="{{ inv.producto.descripcion }}" invprod="{{ inv.cantidad|floatformat:0 }}" pvpprod="{{ inv.producto.pvp }}" fotoprod="{{ inv.producto.download_foto }}" aliasprod="{{ inv.producto.alias }}" codprod="{{ inv.producto.codigo }}">
+        <div class='pd' style="text-align: center; font-size: 11px;">
+            <b>{{ inv.producto.codigo }} - Qty.({{ inv.cantidad|floatformat:0 }})</b>
+        </div>
+        <div class='iconimageprod' style="text-align: center">
+            <div class='pd'>
+                <img src='{{ inv.producto.download_foto }}' alt='' border="0"/>
+            </div>
+        </div>
+        <div class='pd' style="text-align: center; font-size: 11px;">
+            <i>{{ inv.producto.alias }} (${{ inv.producto.pvp }})</i>
+        </div>
+    </div>
+{% endfor %}
+
+{% block moreblock %}
+    <div class="modal fade static" id="cantidadpanel" style="display: none;">
+        <div class="row-fluid modal-header">
+            <div class="span10">
+                <h4>Enter the quantity </h4>
+                <input type="hidden" id='idproducto'/>
+            </div>
+            <div class="span2">
+                <a href="#" class="btn btn-danger btn-cerrar"><i class="fa fa-refresh"></i> </a>
+            </div>
+        </div>
+
+        <div class="alert alert-danger"  id="alertacantidad" style="position: relative; text-align: center; width: 380px; margin-left: 10px; margin-top: 5px; display: none;">
+            <span id="mensaje" style="font-style: italic; ">Quantity</span>
+        </div>
+
+        <div class="modal-body" style="height: 400px;">
+            <div id="panelcanvas" class="row-fluid">
+                <div class="span7">
+                    <p id="panelbody">
+                        <input type="text" style="text-align: right; font-size: 25px; width: 230px; background-color: #000000; color: yellow; font-weight: bold" id='calculadora'/>
+                    </p>
+                    <table border="0">
+                        <tr>
+                            <td class='calc' val='1'><img src="/static/img/1-icon.png"/></td>
+                            <td class='calc' val='2'><img src="/static/img/2-icon.png"/></td>
+                            <td class='calc' val='3'><img src="/static/img/3-icon.png"/></td>
+                        </tr>
+                        <tr>
+                            <td class='calc' val='4'><img src="/static/img/4-icon.png"/></td>
+                            <td class='calc' val='5'><img src="/static/img/5-icon.png"/></td>
+                            <td class='calc' val='6'><img src="/static/img/6-icon.png"/></td>
+
+                        </tr>
+                        <tr>
+                            <td class='calc' val='7'><img src="/static/img/7-icon.png"/></td>
+                            <td class='calc' val='8'><img src="/static/img/8-icon.png"/></td>
+                            <td class='calc' val='9'><img src="/static/img/9-icon.png"/></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td class='calc' val='0'><img src="/static/img/0-icon.png"/></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="span5">
+                    <p id=""><br/></p>
+                    <table cellspacing="1" cellpadding="1">
+                        <tr>
+                            <td style="text-align: center; height: 40px;"><h4> </h4></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; height: 50px;">
+                                <h4>Product </h4><i><span id="nombreprod"></span></i>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><hr/></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; height: 100px;"><img id="imagenprod" width="100px" height="100px"/></td>
+                        </tr>
+                        <tr>
+                            <td><hr/></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>Code: </b><span id="codprod"></span><br>
+                                <b>Alias: </b><span id="aliasprod"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><hr/></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left">
+                                <b>Available: </b><span id="invprod"></span><br>
+                                <b>Price: </b>$<span id="pvpprod"></span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+            </div>
+            <div id="panelalert"></div>
+        </div>
+
+        <div class="modal-footer">
+            <div class="span2">
+                <a href="#" class="btn btn-inverse btn-cancelar" style="font-size: 25px;"><i class="fa fa-refresh" style="vertical-align: middle"></i> CLEAN</a>
+            </div>
+            <div class="span2">
+                <a href="#" class="btn btn-success btn-aceptar" style="font-size: 25px;"><i class="fa fa-check" style="vertical-align: middle"></i> ACEPTAR</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade static" id="facturapanel" style="display: none;">
+        <div class="row-fluid modal-header">
+            <div class="span10">
+                <h4><i>Sale Notice</i></h4>
+            </div>
+            <div class="span2">
+                <a href="#" class="btn btn-danger btn-mini btn-cerrar"><i class="fa fa-times"></i> </a>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="well">
+                <label for="sel_cliente" style="font-weight: bold">Customer </label>
+                <select id="sel_cliente" class="input-block-level">
+                    {% for c in clientes %}
+                        <option value="{{ c.id }}">{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="row-fluid">
+                <h5>Sale General Data</h5>
+                <table class="table table-condensed table-stripped">
+                    <tr>
+                        <td style="width: 80%"><i>SUBTOTAL: </i></td>
+                        <td style="text-align: right" class="bigger"><span id='subtotal'>$0.00</span></td>
+                    </tr>
+                    <tr>
+                        <td><i>TAX: </i></td>
+                        <td style="text-align: right" class="bigger"><span id='iva'>$0.00</span></td>
+                    </tr>
+                    <tr>
+                        <td><i>TOTAL: </i></td>
+                        <td style="text-align: right; font-weight: bold; font-size: 20px;"><span id='total'>$0.00</span></td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle;"><i>PAYMENT: </i></td>
+                        <td style="vertical-align: middle">
+                            <div style="float: right">
+                                <input id='pago' style="text-align: right; font-size: 24px; font-weight: bold" type="text" class="input-medium" value=""/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><i>CASHBACK: </i></td>
+                        <td style="text-align: right; font-weight: bold; font-size: 20px;"><span id='devolucion'>0.00</span></td>
+                    </tr>
+                </table>
+                <br/>
+                <a href="#" id="generate_payment" class="btn btn-success btn-large btn-block"><i class="fa fa-money"></i> Generate Payment</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade static" id="confirmacionpanel" style="display: none;">
+        <div class="row-fluid modal-header">
+            <h4><i>¿ Are you sure to continue with the sale ?</i></h4>
+
+        </div>
+        <div class="modal-body">
+            <h4>CashBack: <span id='devol' style="color: forestgreen ; font-size: 25px ; font-weight: bold"></span></h4>
+
+        </div>
+        <div class="modal-footer">
+            <div style="float: left">
+                <a href="#" class="btn btn-danger btn-large btn-no"><i class="icon-remove icon-white"></i> NO</a>
+            </div>
+            <div style="float: right">
+                <a href="#" style="font-weight: bold; z-index: 2; margin-left: -140px; position: absolute;" class="btn btn-success btn-large btn-si"><i class="icon-check icon-white"></i> ACCEPT</a>
+                <input class="input input-mini" style=" z-index: 1; margin-left: -140px; position: absolute;" type="text" id="aceptar" value=""/>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade static" id="alertafacturapanel" style="display: none;">
+        <div class="modal-body">
+            <h4 class="alert alert-danger">
+                ALERT <br/> The quantity can not be lower than total value of the sale
+            </h4>
+        </div>
+        <div class="modal-footer">
+            <div style="float: right">
+                <a href="#" class="btn btn-success btn-large btn-aceptar"><i class="icon-check icon-white"></i> ACCEPT</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

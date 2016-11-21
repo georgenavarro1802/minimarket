@@ -1,0 +1,266 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{% block pagetitle %}{{ title }}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MINIMARKET DEMO APP">
+    <meta name="author" content="George">
+
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/static/css/bootstrap-responsive.min.css" rel="stylesheet"/>
+    <link href="/static/css/bootstrap-modal.css" rel='stylesheet'/>
+    <link href="/static/font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <link href="/static/css/stylesbs.css" rel='stylesheet'/>
+    <link href="/static/css/datepicker.css" rel='stylesheet'/>
+    <link href="/static/css/smoke.css" type="text/css" rel="stylesheet"  media="screen" />
+    <link href="/static/css/validationEngine.jquery.css" type='text/css' rel='stylesheet' />
+    <link href="/static/css/bootstrap-tagmanager.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="/static/css/jquery.flexbox.css" rel="stylesheet" type="text/css" media="screen"/>
+    <link href="/static/css/date_input.css" rel="stylesheet" type="text/css" media="screen"/>
+
+</head>
+
+{#   ENCABEZADO DE PAGINA     #}
+<body data-spy="scroll" data-target=".subnav" data-offset="50">
+<div id="nav-header" class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="brand" href="/">
+                <span style="vertical-align: middle;"> MiniMarket App </span>
+            </a>
+            {% if not request.user.is_anonymous %}
+                <div class="pull-right hidden-phone hidden-tablet visible-desktop">
+                    <ul class='nav'>
+                        <li><a href='#'><i class="icon-user icon-white"></i> {{ usuario }}</a></li>
+                        {% if usuario.is_superuser %}
+                            <li><a href='/admin' target="_blank"><i class="icon-star icon-white"></i> Administraci&oacute;n</a></li>
+                        {% endif %}
+                        <li><a href="/pass"><i class="icon-lock icon-white"></i> Clave</a></li>
+                        <li><a href="/logout"><i class="icon-off icon-white"></i> Salir</a></li>
+                        <li class="divider-vertical"></li>
+                        <li><a href="#" style="font-size: 20px;" id="clock"></a></li>
+                    </ul>
+                </div>
+            {% endif %}
+        </div> <!-- End Container Fluid -->
+    </div> <!-- End NavBar Inner -->
+</div> <!-- End Nav Header -->
+
+{#   CONTENIDO VENTANA     #}
+<div id="content" class='{% block contentextraclass %}{% endblock %}'>
+    <div class='container{% block containertype %}-fluid{% endblock %}'>
+        {% block canvas %}
+            <input type="text" style="display:none;" id="ffKeyTrap" />
+        {% endblock %}
+    </div>
+</div>
+
+{#   PIE DE PAGINA     #}
+<div id="nav-footer" class='navbar navbar-static-top'>
+    <div class='row-fluid'>
+        <div class='span12' style="text-align: center;" >
+            <p> Minimarket Demo App | All rights reserved &copy; 2016
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade static" id="waitpanel" style="display: none;">
+    <div class="modal-header">
+        <h3 id="paneltitle">Titulo</h3>
+    </div>
+    <div class="modal-body">
+        <p id="panelbody">One fine body…</p>
+    </div>
+</div>
+
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/jquery.validationEngine-es.js"></script>
+<script src="/static/js/jquery.validationEngine.js"></script>
+
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/bootstrap-datepicker.js"></script>
+<script src="/static/js/bootstrap-modal.js"></script>
+<script src="/static/js/bootstrap-modalmanager.js"></script>
+
+<script src="/static/js/jquery.blockUI.js"></script>
+<script src="/static/js/jquery.maskedinput.min.js"></script>
+<script src="/static/js/big.min.js"></script>
+<script src="/static/js/jquery.floats.js"></script>
+<script src="/static/js/smoke.min.js" type="text/javascript"></script>
+<script src='/static/js/notificacionpanel.js'></script>
+<script src="/static/js/bootstrap-tagmanager.js"></script>
+
+<script type='text/javascript' src='/static/js/jquery.flexbox.js'></script>
+<script src="/static/js/jquery.date_input.js" type='text/javascript'></script>
+
+<script>
+
+    $(function() {
+
+        showWaiting = function(titulo, mensaje, close) {
+            $("#waitpanel").find("#paneltitle").html(titulo);
+            $("#waitpanel").find("#panelbody").html(mensaje);
+            if (!close) {
+                $("#waitpanel").modal({keyboard: false, backdrop: 'static'});
+            }
+            $("#waitpanel").modal("show");
+        };
+
+        hideWaiting = function() {
+            $("#waitpanel").modal("hide");
+        };
+
+        function stopRKey(evt) {
+            var evt = (evt) ? evt : ((event) ? event : null);
+            var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+            if ((evt.keyCode == 13) && (node.type=="text"))  {return false;}
+        }
+
+        document.onkeypress = stopRKey;
+
+        $(".linkback").click(function() {
+            //history.go(-1);
+            if(document.referrer) {
+                window.open(document.referrer,'_self');
+            } else {
+                history.go(-1);
+            }
+            return false;
+        });
+
+        serverdate=new Date({{ currenttime.year }},{{ currenttime.month }}-1,{{ currenttime.day }}, {{ currenttime.hour }},{{ currenttime.minute }},{{ currenttime.second }},0);
+        clientdate=new Date();
+
+        function showTime()
+        {
+            var today=new Date();
+            var timediff = today - clientdate;
+
+            var renderdate = new Date(serverdate.getTime() + timediff);
+
+            var h=renderdate.getHours();
+            var mer = " AM";
+            if (h>12) {
+                mer = " PM";
+                h -= 12;
+            }
+            var m=renderdate.getMinutes();
+            var s=renderdate.getSeconds();
+
+            // add a zero in front of numbers<10
+            //h=checkTime(h);
+            m=checkTime(m);
+            s=checkTime(s);
+            $("#clock").text(h+":"+m+mer);
+        }
+
+        function checkTime(i)
+        {
+            if (i<10)
+            {
+                i="0" + i;
+            }
+            return i;
+        }
+
+        setInterval(showTime,15000);
+        showTime();
+
+        $('.dropdown-toggle').dropdown();
+        $(".collapse").collapse();
+        $('.tips').tooltip({});
+
+        $(".cafeteriaselector").click(function() {
+            var cid = $(this).attr('cid');
+            $.blockUI({message: null});
+            $.post("/", {'action': 'cafeteria', 'id': cid}, function(data) {
+                location.reload();
+            }, 'json');
+            return false;
+        });
+
+        numerico = function(elemento, min, max, decimales) {
+            var nvalor;
+            var valor = elemento.val();
+            if (valor==""){
+                valor = parseFloat(min).toFixed(decimales);
+                elemento.val(valor);
+                return;
+            }
+            if (isNaN(valor)){
+                nvalor = parseFloat(min).toFixed(decimales);
+                elemento.val(nvalor);
+                return;
+            }
+            if (valor < min) {
+                nvalor = parseFloat(min).toFixed(decimales);
+                elemento.val(nvalor);
+                return;
+            }
+            if (max>0 && valor>max){
+                nvalor = parseFloat(max).toFixed(decimales);
+                elemento.val(nvalor);
+                return;
+            }
+            nvalor = parseFloat(valor).toFixed(decimales);
+            elemento.val(nvalor);
+        };
+
+        // Funcion de redondeo que reemplaza a la funcion math.round() de javascript por fallos al redondear
+        redondeo = function(numero, presicion){
+            var multiplicador = Math.pow(10, presicion + 1);
+            var num_multi = Math.floor(numero * multiplicador);
+            var num_redondeado = (Math.round(num_multi/10)) * 10 / multiplicador;
+
+            if (num_redondeado == 0){
+                return 0;
+            }else{
+                if ( !isNaN(num_redondeado))
+                    return num_redondeado;
+                else
+                    return 0;
+            }
+        };
+
+        // Función que redondea el valor que contiene una caja de texto inputs
+        redondear = function(obj){
+            var numero = $(obj).val();
+            var presicion = 2;
+            if (!isNaN(numero)){
+                if (numero == 0)
+                    $(obj).val((0).toFixed(presicion));
+                else
+                    $(obj).val(redondeo(numero, presicion).toFixed(2));
+            }
+        };
+
+        validacionesnumericas = function() {
+            $(".validarnumero").blur(function(){
+                numerico($(this), 0, 0, 0);
+            });
+
+            $(".validarmoneda").blur(function(){
+                numerico($(this), 0, 0, 2);
+            });
+        };
+
+        $(".tt").tooltip({placement:"top"});
+        $(".tr").tooltip({placement:"right"});
+        $(".tl").tooltip({placement:"left"});
+        $(".tb").tooltip({placement:"bottom"});
+
+        $("#id_email").css({'text-transform': 'lowercase'});
+
+    });
+</script>
+{% block heading %}
+{% endblock %}
+
+{% block moreblock %}
+{% endblock %}
+</body>
+</html>

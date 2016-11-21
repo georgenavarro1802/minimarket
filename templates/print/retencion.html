@@ -1,0 +1,27 @@
+{
+    "id": "{{ id }}",
+    "documento": "RETENCION {{ dato.numero }}",
+    "size": [538,408],
+    "margins": [25,28,535,344],
+    "impresion": [
+        [56,88,"{{ dato.transaccion_adquisicion.proveedor.nombre_completo }}"],
+        [56,108,"{{ dato.transaccion_adquisicion.proveedor.direccion }}"],
+        [56,128,"{{ dato.transaccion_adquisicion.proveedor.identificacion }}"],
+        [283,128,"{{ dato.fecha|date:"d-m-Y" }}"],
+
+        {% for d in dato.detalles.all %}
+            [1,{% cycle 171 188 205 222 239 as ylines %},"{{ dato.fecha|date:"Y" }}"],
+            [42,{{ ylines }},"{{ dato.transaccion_adquisicion.tipodocumento.nombre }}"],
+            [104,{{ ylines }},"{{ dato.transaccion_adquisicion.numerodocumento }}"],
+            [269,{{ ylines }},"{{ d.valorbase|floatformat:2 }}"],
+            [323,{{ ylines }},"{{ d.tipo_impuesto }}"],
+            [396,{{ ylines }},"{{ d.tipo.codigo }}"],
+            [439,{{ ylines }},"{{ d.tipo.porcentaje }}"],
+            [481,{{ ylines }},"{{ d.valor|floatformat:2 }}"],
+        {% endfor %}
+
+        [1,272,"{{ dato.concepto_retencion }}"],
+        [481,257, "{{ dato.total|floatformat:2 }}"]
+
+    ]
+}

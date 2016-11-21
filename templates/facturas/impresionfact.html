@@ -1,0 +1,121 @@
+<script src="/static/js/jquery.min.js"></script>
+<script>
+    $(function() {
+
+        window.onload = function(){
+            window.print();
+            setTimeout(function(){
+                window.close();
+            },1);
+        };
+
+    });
+
+</script>
+
+<div id='areaimpresion' style="position: absolute; left: 0; top: 0;" >
+    <table style="font-family: monospace">
+        <thead>
+            <tr>
+                <td class="bigger" style="text-align: center" colspan="8">{{ cafeteria }}</td>
+            </tr>
+             <th style="text-align: center" colspan="8">{{ datos_generales_cafeteria.0.2 }}</th>
+            </tr>
+             <tr>
+                    <th style="text-align: center" colspan="8" >{{datos_generales_cafeteria.0.1 }}</th>
+            </tr>
+
+            <tr>
+                    <th style="text-align: center" colspan="8">{{ datos_generales_cafeteria.0.3 }} </th>
+            </tr>
+            <tr>
+                    <th style="text-align: center" colspan="8"> </th>
+            </tr>
+        {% for dg in datos_generales_impresion %}
+                <tr>
+                    <th class="smaller" style="text-align: left">Cliente: </th>
+                    <th style="text-align: left">{{ dg.1 }}</th>
+                </tr>
+                <tr>
+                    <th class="smaller" style="text-align: left">Ruc/Ced.: </th>
+                    <th style="text-align: left">{{ dg.0 }}</th>
+                </tr>
+             <tr>
+                    <th class="smaller" style="text-align: left">Dirección: </th>
+                    <th style="text-align: left">{{ dg.2 }}</th>
+                </tr>
+                <tr>
+                    <th class="smaller" style="text-align: left">Telefono: </th>
+                    <th style="text-align: left">{{ dg.3 }}</th>
+                </tr>
+
+                <tr>
+                    <th class="smaller" style="text-align: left">Fecha: </th>
+                    <th style="text-align: left">{{ dg.7|date:'d-m-Y' }}</th>
+                </tr>
+                 <tr>
+                     <td colspan="8"><hr/></td>
+                 </tr>
+        {% endfor %}
+        </thead>
+
+        <tbody>
+            {% for dp in datos_productos_impresion %}
+                <tr>
+                    <td class="smaller" style="text-align: left" nowrap>
+                        {{ dp.0 }}                  <!-- Alias del producto  -->
+                    </td>
+                    <td></td>
+                    <td class="smaller" style="text-align: center" nowrap>
+                        {{ dp.1|floatformat:0 }}X    <!-- Cantidad -->
+                    </td>
+                    <td></td>
+                    <td class="smaller" style="text-align: center" nowrap>
+                        ${{ dp.2|floatformat:2 }}   <!-- Costo unitario -->
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td class="smaller" style="text-align: right" nowrap>
+                        ${{ dp.3|floatformat:2 }}   <!-- Valor Linea -->
+                    </td>
+                </tr>
+            {% endfor %}
+                 <tr>
+                     <td colspan="8"><hr/></td>
+                 </tr>
+        </tbody>
+
+        <tfoot>
+            {% for dg in datos_generales_impresion %}
+                <tr>
+                    <td class="smaller" colspan="7">SubT:</td>
+                    <td class="smaller" nowrap style="text-align: left"> ${{ dg.4|floatformat:2 }}</td> <!-- Subtotal -->
+                </tr>
+                <tr>
+                    <td class="smaller" colspan="7">IVA:</td>
+                    <td class="smaller" nowrap style="text-align: left"> ${{ dg.5|floatformat:2 }}</td> <!-- IVA -->
+                </tr>
+                <tr>
+                    <td class="smaller" colspan="7">Total:</td>
+                    <td class="smaller" nowrapstyle="text-align: left"> ${{ dg.6|floatformat:2 }}</td> <!-- Total -->
+                </tr>
+            {% endfor %}
+                <tr>
+                    <td colspan="8"></td>
+                </tr>
+                <tr>
+                    <td colspan="8" style="text-align: center"><h5><i>G R A C I A S </i></h5></td>
+                </tr>
+                <tr>
+                    <td colspan="8"></td>
+                </tr>
+        </tfoot>
+    </table>
+
+</div>
+
+
+
+
+
+

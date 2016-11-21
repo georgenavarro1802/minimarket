@@ -1,0 +1,194 @@
+[
+  {
+    "model": "store.modulogrupo",
+    "pk": 1,
+    "fields": {
+      "nombre": "General",
+      "descripcion": "All modules",
+      "orden": "1"
+    }
+  },
+  {
+    "model": "store.modulogrupo",
+    "pk": 2,
+    "fields": {
+      "nombre": "Transactions",
+      "descripcion": "Transactions",
+      "orden": "2"
+    }
+  },
+  {
+    "model": "store.modulogrupo",
+    "pk": 3,
+    "fields": {
+      "nombre": "Stats & Charts",
+      "descripcion": "Statistics",
+      "orden": "3"
+    }
+  },
+  {
+    "model": "store.modulo",
+    "pk": 1,
+    "fields": {
+      "grupo": 1,
+      "url": "productos",
+      "nombre": "Products",
+      "icono": "/static/img/iconos/products.png",
+      "descripcion": "Products management",
+      "orden": 1
+    }
+  },
+  {
+    "model": "store.modulo",
+    "pk": 5,
+    "fields": {
+      "grupo": 1,
+      "url": "proveedores",
+      "nombre": "Suppliers",
+      "icono": "/static/img/iconos/suppliers.png",
+      "descripcion": "Suppliers management",
+      "orden": 2
+    }
+  },
+  {
+    "model": "store.modulo",
+    "pk": 3,
+    "fields": {
+      "grupo": 1,
+      "url": "clientes",
+      "nombre": "Customers",
+      "icono": "/static/img/iconos/cliente.png",
+      "descripcion": "Customers management",
+      "orden": 3
+    }
+  },
+  {
+    "model": "store.modulo",
+    "pk": 2,
+    "fields": {
+      "grupo": 2,
+      "url": "caja",
+      "nombre": "Cash Register Sesions",
+      "icono": "/static/img/iconos/invoice.png",
+      "descripcion": "Cash register sesions",
+      "orden": 1
+    }
+  },
+  {
+    "model": "store.modulo",
+    "pk": 4,
+    "fields": {
+      "grupo": 2,
+      "url": "ingresoinv",
+      "nombre": "Purchases",
+      "icono": "/static/img/iconos/ingresoprod.png",
+      "descripcion": "Purchases management",
+      "orden": 2
+    }
+  },
+  {
+    "model": "store.modulo",
+    "pk": 6,
+    "fields": {
+      "grupo": 2,
+      "url": "ventas",
+      "nombre": "Sales",
+      "icono": "/static/img/iconos/cash_register.png",
+      "descripcion": "Sales management",
+      "orden": 3
+    }
+  },
+  {
+    "model": "store.modulo",
+    "pk": 7,
+    "fields": {
+      "grupo": 3,
+      "url": "inventarios",
+      "nombre": "Inventories",
+      "icono": "/static/img/iconos/inv.png",
+      "descripcion": "Inventories management",
+      "orden": 1
+    }
+  },
+  {
+    "model": "store.modulo",
+    "pk": 8,
+    "fields": {
+      "grupo": 3,
+      "url": "estadisticas",
+      "nombre": "Stats",
+      "icono": "/static/img/iconos/chart.png",
+      "descripcion": "Statistics management",
+      "orden": 2
+    }
+  },
+  {
+    "model": "store.modulo",
+    "pk": 9,
+    "fields": {
+      "grupo": 3,
+      "url": "estadisticas",
+      "nombre": "Reports",
+      "icono": "/static/img/iconos/reportes.png",
+      "descripcion": "Reports management",
+      "orden": 3
+    }
+  },
+  {
+    "model": "store.tipoproducto",
+    "pk": 1,
+    "fields": {
+      "nombre": "COLD DRINKS",
+      "inicial": "1000"
+    }
+  },
+  {
+    "model": "store.tipoproducto",
+    "pk": 2,
+    "fields": {
+      "nombre": "HOT DRINKS",
+      "inicial": "2000"
+    }
+  },
+  {
+    "model": "store.tipoproducto",
+    "pk": 3,
+    "fields": {
+      "nombre": "SANDWICH",
+      "inicial": "3000"
+    }
+  },
+  {
+    "model": "store.tipoproducto",
+    "pk": 4,
+    "fields": {
+      "nombre": "SNACKS",
+      "inicial": "4000"
+    }
+  },
+  {
+    "model": "store.tipoproducto",
+    "pk": 5,
+    "fields": {
+      "nombre": "CANDIES",
+      "inicial": "5000"
+    }
+  },
+  {
+    "model": "store.tipoproducto",
+    "pk": 6,
+    "fields": {
+      "nombre": "DESSERTS",
+      "inicial": "6000"
+    }
+  },
+  {
+    "model": "store.tipoproducto",
+    "pk": 7,
+    "fields": {
+      "nombre": "LUNCH",
+      "inicial": "7000"
+    }
+  }
+
+]

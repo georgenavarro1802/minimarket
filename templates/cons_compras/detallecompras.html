@@ -1,0 +1,27 @@
+<div class="row-fluid">
+<div class="span12">
+    <table class="table table-condensed table-stripped">
+        <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Costo</th>
+            <th>Valor</th>
+
+        </tr>
+        </thead>
+    <tbody>
+        {% for d in compras.productos.all %}
+            <tr>
+                <td>
+                   {{ d.producto.nombre_corto }}
+                </td>
+                <td style="text-align: center"> {{ d.cantidad|floatformat:0 }}</td>
+                <td  style="text-align: center"> {{ d.costo|floatformat:2 }}</td>
+                <td  style="text-align: center"> {{ d.valor|floatformat:2 }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+</div>
